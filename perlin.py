@@ -55,8 +55,8 @@ def _interpolate(x0: float, x1: float, t: float) -> float:
     Interpolate between x0 and x1, where t is in [0, 1].
     """
 
-    # use smoothstep
-    return (x1 - x0) * (3 - 2 * t) * t * t + x0
+    # use smootherstep
+    return (x1 - x0) * t * t * t * (t * (6 * t - 15) + 10) + x0
 
 
 def perlin(x: float, y: float) -> float:
