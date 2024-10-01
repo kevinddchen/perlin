@@ -28,7 +28,7 @@ def _hash_grid_point(x: int, y: int) -> tuple[float, float]:
     """
 
     hash = _hash_combine(_hash_int(x), _hash_int(y))
-    angle = (hash / _HASH_SIZE) * math.pi
+    angle = (hash / _HASH_SIZE) * 2 * math.pi
     return math.cos(angle), math.sin(angle)
 
 
@@ -50,13 +50,13 @@ def _compute_dot_product(grid_x: int, grid_y: int, x: float, y: float) -> float:
     return grad_x * disp_x + grad_y * disp_y
 
 
-def _interpolate(x0: float, x1: float, t: float) -> float:
+def _interpolate(a0: float, a1: float, t: float) -> float:
     """
-    Interpolate between x0 and x1, where t is in [0, 1].
+    Interpolate between a0 and a1, where t is in [0, 1].
     """
 
     # use smootherstep
-    return (x1 - x0) * t * t * t * (t * (6 * t - 15) + 10) + x0
+    return (a1 - a0) * t * t * t * (t * (6 * t - 15) + 10) + a0
 
 
 def perlin(x: float, y: float) -> float:
