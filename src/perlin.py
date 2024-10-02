@@ -1,35 +1,6 @@
-import hashlib
 import math
 
-_HASH_SIZE = 2**32
-
-
-def _hash_int(n: int) -> int:
-    """
-    Hash an integer to a uint32.
-    """
-
-    hash = hashlib.md5(int.to_bytes(n))
-    return int.from_bytes(hash.digest()) % _HASH_SIZE
-
-
-def _hash_combine(a: int, b: int) -> int:
-    """
-    Combine two uint32 hashes. Uses same method as boost::hash_combine.
-    """
-
-    a ^= (b + 0x9E3779B9 + (a << 6) % _HASH_SIZE + (a >> 2)) % _HASH_SIZE
-    return a
-
-
-def _hash_grid_point(x: int, y: int) -> tuple[float, float]:
-    """
-    Hash grid point to a unit vector.
-    """
-
-    hash = _hash_combine(_hash_int(x), _hash_int(y))
-    angle = (hash / _HASH_SIZE) * 2 * math.pi
-    return math.cos(angle), math.sin(angle)
+from .hash import get_gradient_vector
 
 
 def _grid_dot_product(grid_x: int, grid_y: int, x: float, y: float) -> float:
@@ -48,7 +19,7 @@ def _grid_dot_product(grid_x: int, grid_y: int, x: float, y: float) -> float:
         Dot product value, normalized to [-1, 1].
     """
 
-    grad_x, grad_y = _hash_grid_point(grid_x, grid_y)
+    grad_x, grad_y = get_gradient_vector(grid_x, grid_y)
     disp_x = x - grid_x
     disp_y = y - grid_y
     dot = grad_x * disp_x + grad_y * disp_y
