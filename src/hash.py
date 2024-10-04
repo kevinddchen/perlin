@@ -1,14 +1,9 @@
 import hashlib
 import math
-from typing import Literal
+import os
 
 _MAX_UINT32 = 0xFFFFFFFF
 _NUM_UINT32 = _MAX_UINT32 + 1
-
-_FNV_PRIME = 0x01000193
-_FNV_OFFSET = 0x811C9DC5
-
-_HASH_SIZE = 2**32
 
 
 def _hash_int(n: int) -> int:
@@ -32,11 +27,13 @@ def _hash_combine(a: int, b: int) -> int:
     return a
 
 
-def _hash_grid_point_md5(x: int, y: int) -> int:
+def _hash_grid_point_md5(x: int, y: int, octave: int) -> int:
     """
     Hash grid point to a uint32, using MD5 hash.
     """
 
+    if octave != 1:
+        raise NotImplementedError("Octaves not implemented for MD5 yet")
     return _hash_combine(_hash_int(x), _hash_int(y))
 
 
@@ -52,27 +49,32 @@ def _hash_grid_point_fnv(x: int, y: int, octave: int) -> int:
     o_bts = int.to_bytes(octave & _MAX_UINT32, length=4, byteorder="little")
 
     # 32-bit variant of FNV-1a
-    hash = _FNV_OFFSET
+    hash = 0x811C9DC5
     for char in x_bts + y_bts + o_bts:
         hash ^= char
-        hash = (hash * _FNV_PRIME) & _MAX_UINT32
+        hash = (hash * 0x01000193) & _MAX_UINT32
 
     return hash
 
 
-def get_gradient_vector(
-    x: int,
-    y: int,
-    octave: int = 1,
-    variant: Literal["fnv", "md5"] = "fnv",
-) -> tuple[float, float]:
+_hash_variant = os.getenv("PERLIN_HASH", "FNV")
+
+
+def get_gradient_vector(x: int, y: int, octave: int = 1) -> tuple[float, float]:
     """
-    Get random gradient vector for a given grid point.
+    Get random gradient vector for a given grid point. Set the `PERLIN_HASH`
+    environment variable to pick between two hashing variants:
+
+    - FNV: Use FNV-1a hash. This is the default
+    - MD5: Use MD5 hash.
     """
-    if variant == "fnv":
+
+    if _hash_variant == "FNV":
         h = _hash_grid_point_fnv(x, y, octave)
-    elif variant == "md5":
-        h = _hash_grid_point_md5(x, y)
+    elif _hash_variant == "MD5":
+        h = _hash_grid_point_md5(x, y, octave)
+    else:
+        raise NotImplementedError(f"Hashing not implemented: {_hash_variant}")
 
     angle = (h / _NUM_UINT32) * 2 * math.pi
     return math.cos(angle), math.sin(angle)

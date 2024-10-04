@@ -5,45 +5,54 @@ import matplotlib.pyplot as plt
 import numpy as np
 import tyro
 
-from .perlin import perlin
+from .perlin import DTYPE, perlin_cell
 
 
-def render_perlin(
-    size: int,
+def _render_perlin(
+    n_cells: int,
     resolution: int,
-    origin: tuple[float, float],
+    origin: tuple[int, int],
 ) -> np.ndarray:
     """
     Render Perlin noise.
-
-    Args:
-        size: Size of image, in pixels.
-        resolution: Pixels per grid.
-        origin: (x, y) coordinate of bottom left corner of image.
-
+    
     Returns:
-        Array of Perlin noise values.
+        Array with shape (n_cells * resolution, n_cells * resolution).
     """
 
-    grid = np.zeros((size, size))
-    for i in range(size):
-        for j in range(size):
-            x = origin[0] + i / resolution
-            y = origin[1] + j / resolution
-            grid[i, j] = perlin(x, y)
+    n_pixels = n_cells * resolution
+    grid = np.zeros((n_pixels, n_pixels), dtype=DTYPE)
+
+    # render noise by cells
+    for i in range(n_cells):
+        for j in range(n_cells):
+            s_i = slice(i * resolution, (i + 1) * resolution)
+            s_j = slice(j * resolution, (j + 1) * resolution)
+            grid[s_i, s_j] = perlin_cell(origin[0] + i, origin[1] + j, resolution)
 
     return grid
 
 
 def main(
-    size: int = 512,
+    out_path: Path = Path("perlin.png"),
+    n_cells: int = 8,
     resolution: int = 32,
-    origin: tuple[float, float] = (0.0, 0.0),
+    origin: tuple[int, int] = (0, 0),
     cmap: Literal["bwr", "gray"] = "gray",
     interpolation: Literal["nearest", "bilinear"] = "nearest",
-    out_path: Path = Path("perlin.png"),
 ) -> None:
-    arr = render_perlin(size=size, resolution=resolution, origin=origin)
+    """
+    Render Perlin noise.
+
+    Args:
+        out_path: path to output image file.
+        num_cells: the image will contain `n_cells` x `n_cells` cells.
+        resolution: each cell will contain `resolution` x `resolution` pixels.
+        origin: coordinate of grid point at the image origin.
+        cmap: color map for the image.
+        interpolation: used for displaying the image.
+    """
+    arr = _render_perlin(n_cells=n_cells, resolution=resolution, origin=origin)
     plt.imshow(arr, cmap=cmap, interpolation=interpolation)
     plt.savefig(out_path)
 

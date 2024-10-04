@@ -292,12 +292,14 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "matplotlib" },
+    { name = "numpy" },
     { name = "tyro" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "matplotlib" },
+    { name = "numpy" },
     { name = "tyro" },
 ]
 
