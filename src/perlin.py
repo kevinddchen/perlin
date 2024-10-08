@@ -1,7 +1,9 @@
 import math
+from typing import TypeVar
 
 import numpy as np
 
+from ._types import RingElem
 from .hash import get_gradient_vector
 
 DTYPE = np.float32
@@ -28,11 +30,14 @@ def _grid_dot_product(grid_x: int, grid_y: int, x: float, y: float) -> float:
     disp_y = y - grid_y
     dot = grad_x * disp_x + grad_y * disp_y
 
-    # in 2d, dot is in [-1/sqrt(2), 1/sqrt(2)]. So normalize by multipling by sqrt(2).
+    # in 2d, dot is in [-1/sqrt(2), 1/sqrt(2)]. so normalize by multipling by sqrt(2).
     return math.sqrt(2) * dot
 
 
-def _interpolate(a0: float, a1: float, t: float) -> float:
+T = TypeVar("T", bound=RingElem)
+
+
+def _interpolate(a0: T, a1: T, t: T) -> T:
     """
     Interpolate between a0 and a1, where t is in [0, 1]. Uses "smootherstep"
     function, i.e. first and second derivatives vanish at endpoints.
@@ -111,7 +116,6 @@ def perlin_cell(grid_x: int, grid_y: int, resolution: int) -> np.ndarray:
     t_x = t[:, None]
     t_y = t[None, :]
 
-    # TODO: fix typing
     bottom = _interpolate(dots[0], dots[1], t_x)
     top = _interpolate(dots[3], dots[2], t_x)
     value = _interpolate(bottom, top, t_y)

@@ -3,7 +3,6 @@ import math
 import os
 
 _MAX_UINT32 = 0xFFFFFFFF
-_NUM_UINT32 = _MAX_UINT32 + 1
 
 
 def _hash_int(n: int) -> int:
@@ -76,5 +75,5 @@ def get_gradient_vector(x: int, y: int, octave: int = 1) -> tuple[float, float]:
     else:
         raise NotImplementedError(f"Hashing not implemented: {_hash_variant}")
 
-    angle = (h / _NUM_UINT32) * 2 * math.pi
+    angle = 2 * math.pi * h / (_MAX_UINT32 + 1)
     return math.cos(angle), math.sin(angle)
