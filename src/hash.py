@@ -41,11 +41,16 @@ def _hash_grid_point_fnv(x: int, y: int, octave: int) -> int:
     Hash grid point to a uint32, using FNV-1a hash.
     """
 
+    # we empirically find that adding an offset to the input makes the hash
+    # more "random" for inputs close to zero. it may have something to do with
+    # long strings of zero-bytes causing problems in the hash.
+    _OFFSET = 0x9E3779B9  # offset picked arbitrarily
+
     # cast integer to uint32, then convert to bytes. we use little-endian since
     # the least-significant-byte varies the most and should be in front.
-    x_bts = int.to_bytes(x & _MAX_UINT32, length=4, byteorder="little")
-    y_bts = int.to_bytes(y & _MAX_UINT32, length=4, byteorder="little")
-    o_bts = int.to_bytes(octave & _MAX_UINT32, length=4, byteorder="little")
+    x_bts = int.to_bytes((x + _OFFSET) & _MAX_UINT32, length=4, byteorder="little")
+    y_bts = int.to_bytes((y + _OFFSET) & _MAX_UINT32, length=4, byteorder="little")
+    o_bts = int.to_bytes((octave + _OFFSET) & _MAX_UINT32, length=4, byteorder="little")
 
     # 32-bit variant of FNV-1a
     hash = 0x811C9DC5

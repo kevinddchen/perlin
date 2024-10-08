@@ -109,7 +109,7 @@ def perlin_cell(grid_x: int, grid_y: int, resolution: int) -> np.ndarray:
         disp = coords - np.array(grid, dtype=DTYPE)  # (res, res, 2)
         dot = (disp * grad).sum(axis=-1)  # (res, res)
 
-        # In 2d, dot is in [-1/sqrt(2), 1/sqrt(2)]. So normalize by multipling by sqrt(2).
+        # in 2d, dot is in [-1/sqrt(2), 1/sqrt(2)]. so normalize by multipling by sqrt(2).
         dots.append(dot * math.sqrt(2))
 
     # interpolate
