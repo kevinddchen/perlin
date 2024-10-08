@@ -3,7 +3,7 @@ from typing import TypeVar
 
 import numpy as np
 
-from ._types import RingElem
+from ._types import ArrayLike
 from .hash import get_gradient_vector
 
 DTYPE = np.float32
@@ -34,7 +34,7 @@ def _grid_dot_product(grid_x: int, grid_y: int, x: float, y: float) -> float:
     return math.sqrt(2) * dot
 
 
-T = TypeVar("T", bound=RingElem)
+T = TypeVar("T", bound=ArrayLike)
 
 
 def _interpolate(a0: T, a1: T, t: T) -> T:

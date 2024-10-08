@@ -15,7 +15,7 @@ def _render_perlin(
 ) -> np.ndarray:
     """
     Render Perlin noise.
-    
+
     Returns:
         Array with shape (n_cells * resolution, n_cells * resolution).
     """
