@@ -64,13 +64,21 @@ def _hash_grid_point_fnv(x: int, y: int, octave: int) -> int:
 _hash_variant = os.getenv("PERLIN_HASH", "FNV")
 
 
-def get_gradient_vector(x: int, y: int, octave: int = 1) -> tuple[float, float]:
+def get_gradient_vector(x: int, y: int, octave: int) -> tuple[float, float]:
     """
-    Get random gradient vector for a given grid point. Set the `PERLIN_HASH`
+    Get gradient vector for a given grid point. Set the `PERLIN_HASH`
     environment variable to pick between two hashing variants:
 
     - FNV: Use FNV-1a hash. This is the default
     - MD5: Use MD5 hash.
+
+    Args:
+        x: x coordinate of grid point.
+        y: y coordinate of grid point.
+        octave: index enumerating scale of noise.
+
+    Returns:
+        2d unit vector.
     """
 
     if _hash_variant == "FNV":
