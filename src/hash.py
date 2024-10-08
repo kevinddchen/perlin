@@ -31,9 +31,7 @@ def _hash_grid_point_md5(x: int, y: int, octave: int) -> int:
     Hash grid point to a uint32, using MD5 hash.
     """
 
-    if octave != 1:
-        raise NotImplementedError("Octaves not implemented for MD5 yet")
-    return _hash_combine(_hash_int(x), _hash_int(y))
+    return _hash_combine(_hash_combine(_hash_int(x), _hash_int(y)), _hash_int(octave))
 
 
 def _hash_grid_point_fnv(x: int, y: int, octave: int) -> int:
@@ -61,7 +59,7 @@ def _hash_grid_point_fnv(x: int, y: int, octave: int) -> int:
     return hash
 
 
-_hash_variant = os.getenv("PERLIN_HASH", "FNV")
+_hash_variant = os.getenv("PERLIN_HASH", "FNV").upper()
 
 
 def get_gradient_vector(x: int, y: int, octave: int) -> tuple[float, float]:
