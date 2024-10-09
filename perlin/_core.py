@@ -2,11 +2,9 @@ import math
 from typing import TypeVar
 
 import numpy as np
+from numpy.typing import DTypeLike
 
 from ._hash import get_gradient_vector
-from ._types import ArrayLike
-
-DTYPE = np.float32
 
 
 def _grid_dot_product(grid_x: int, grid_y: int, x: float, y: float, octave: int) -> float:
@@ -31,11 +29,11 @@ def _grid_dot_product(grid_x: int, grid_y: int, x: float, y: float, octave: int)
     disp_y = y - grid_y
     dot = grad_x * disp_x + grad_y * disp_y
 
-    # in 2d, dot is in [-1/sqrt(2), 1/sqrt(2)]. so normalize by multipling by sqrt(2).
+    # in 2d, dot is in [-1/sqrt(2), 1/sqrt(2)]. so normalize by multiplying by sqrt(2).
     return math.sqrt(2) * dot
 
 
-T = TypeVar("T", bound=ArrayLike)
+T = TypeVar("T", float, np.ndarray)
 
 
 def _interpolate(a0: T, a1: T, t: T) -> T:
@@ -79,7 +77,13 @@ def perlin(x: float, y: float, octave: int) -> float:
     return value
 
 
-def perlin_cell(grid_x: int, grid_y: int, resolution: int, octave: int) -> np.ndarray:
+def perlin_cell(
+    grid_x: int,
+    grid_y: int,
+    octave: int,
+    resolution: int,
+    dtype: DTypeLike = "float32",
+) -> np.ndarray:
     """
     Returns Perlin noise, normalized to [-1, 1], for the cell at the specified
     grid point.
@@ -90,8 +94,9 @@ def perlin_cell(grid_x: int, grid_y: int, resolution: int, octave: int) -> np.nd
     Args:
         grid_x: x coordinate of grid point.
         grid_y: y coordinate of grid point.
-        resolution: cell will contain `resolution` x `resolution` pixels.
         octave: index enumerating scale of noise.
+        resolution: cell will contain `resolution` x `resolution` pixels.
+        dtype: data type to use.
 
     Returns:
         Array with shape (resolution, resolution)."""
@@ -103,7 +108,7 @@ def perlin_cell(grid_x: int, grid_y: int, resolution: int, octave: int) -> np.nd
         (grid_x, grid_y + 1),  # top left
     )
 
-    t = np.linspace(0, 1, num=resolution, endpoint=False, dtype=DTYPE)
+    t = np.linspace(0, 1, num=resolution, endpoint=False, dtype=dtype)
     xs = grid_x + t
     ys = grid_y + t
     coords = np.stack(np.meshgrid(xs, ys, indexing="ij"), axis=-1)  # (res, res, 2)
@@ -112,11 +117,11 @@ def perlin_cell(grid_x: int, grid_y: int, resolution: int, octave: int) -> np.nd
     dots: list[np.ndarray] = []
 
     for grid in grids:
-        grad = np.array(get_gradient_vector(grid[0], grid[1], octave=octave), dtype=DTYPE)
-        disp = coords - np.array(grid, dtype=DTYPE)  # (res, res, 2)
+        grad = np.array(get_gradient_vector(grid[0], grid[1], octave=octave), dtype=dtype)
+        disp = coords - np.array(grid, dtype=dtype)  # (res, res, 2)
         dot = (disp * grad).sum(axis=-1)  # (res, res)
 
-        # in 2d, dot is in [-1/sqrt(2), 1/sqrt(2)]. so normalize by multipling by sqrt(2).
+        # in 2d, dot is in [-1/sqrt(2), 1/sqrt(2)]. so normalize by multiplying by sqrt(2).
         dots.append(dot * math.sqrt(2))
 
     # interpolate
