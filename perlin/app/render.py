@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import tyro
 
-from .perlin import DTYPE, perlin_cell
+from perlin import perlin_cell
 
 
 def _render(
@@ -31,7 +31,7 @@ def _render(
 
     # prepare empty image
     n_pixels = n_cells * resolution
-    image = np.zeros((n_pixels, n_pixels), dtype=DTYPE)
+    image = np.zeros((n_pixels, n_pixels), dtype=np.float32)
 
     amp = 1.0  # amplitude of noise for current octave
     cum_amp = 0.0  # tracks sum of amplitudes; for renormalizing noise

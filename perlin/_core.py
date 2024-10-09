@@ -3,8 +3,8 @@ from typing import TypeVar
 
 import numpy as np
 
+from ._hash import get_gradient_vector
 from ._types import ArrayLike
-from .hash import get_gradient_vector
 
 DTYPE = np.float32
 
